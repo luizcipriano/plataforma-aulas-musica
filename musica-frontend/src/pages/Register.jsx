@@ -1,23 +1,43 @@
 import { useState } from 'react';
-import { register } from '../api/auth';
+import { register, login } from '../api/auth';
+import { jwtDecode } from 'jwt-decode';
+import LayoutPublico from '../components/LayoutPublico';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'professor' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',  
+    password: '',
+    role: 'professor'
+  });
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      // Registrar
       await register(form.name, form.email, form.password, form.role);
-      alert('Cadastro realizado com sucesso!');
+
+      // Login automático
+      const data = await login(form.email, form.password);
+      localStorage.setItem('token', data.token);
+
+      // Redirecionar por role
+      const decoded = jwtDecode(data.token);
+      if (decoded.role === 'professor') {
+        window.location.href = '/painel';
+      } else {
+        window.location.href = '/aulas';
+      }
+
     } catch (err) {
       alert(err.message);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
-        <h2 className="text-2xl font-bold text-center">Cadastro</h2>
+    <LayoutPublico>
+      <h2 className="text-2xl font-bold text-center">Cadastro</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input className="w-full p-2 border rounded" placeholder="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
         <input className="w-full p-2 border rounded" type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
         <input className="w-full p-2 border rounded" type="password" placeholder="Senha" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
@@ -27,6 +47,9 @@ export default function Register() {
         </select>
         <button className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700">Cadastrar</button>
       </form>
-    </div>
+      <p className="text-center text-sm">
+        Já tem conta? <a href="/login" className="text-blue-600 hover:underline">Fazer login</a>
+      </p>
+    </LayoutPublico>
   );
 }

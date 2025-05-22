@@ -1,4 +1,5 @@
 const pool = require('../models/db');
+const supabase = require('../services/supabase');
 
 // Criar vídeo
 const createVideo = async (req, res) => {
@@ -16,17 +17,48 @@ const createVideo = async (req, res) => {
   }
 };
 
-// Listar vídeos do professor
+// Listar vídeos do professor ou todos os vídeos para aluno
 const getMyVideos = async (req, res) => {
-  const owner_id = req.user.userId;
+  const { userId, role } = req.user;
 
   try {
-    const result = await pool.query(
-      'SELECT * FROM videos WHERE owner_id = $1 ORDER BY created_at DESC',
-      [owner_id]
+    let result;
+
+    if (role === 'professor') {
+      // Professores veem apenas seus vídeos (sem signed URL)
+      result = await pool.query(
+        'SELECT * FROM videos WHERE owner_id = $1 ORDER BY created_at DESC',
+        [userId]
+      );
+      return res.json(result.rows);
+    }
+
+    // Aluno: pega todos os vídeos com nome do professor
+    result = await pool.query(
+      `SELECT v.*, u.name AS professor_name
+       FROM videos v
+       JOIN users u ON v.owner_id = u.id
+       ORDER BY v.created_at DESC`
     );
-    res.json(result.rows);
+
+    // Para cada vídeo, gerar signed URL
+    const signedResults = await Promise.all(
+      result.rows.map(async (video) => {
+        const { data, error } = await supabase.storage
+          .from('videos')
+          .createSignedUrl(video.video_url, 60 * 60); // 1 hora
+
+        return {
+          ...video,
+          video_url: data?.signedUrl || null
+        };
+      })
+    );
+
+    return res.json(signedResults);
+
   } catch (err) {
+    console.error('Erro ao buscar vídeos:', err);
     res.status(500).json({ error: 'Erro ao buscar vídeos.' });
   }
 };

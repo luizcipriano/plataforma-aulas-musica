@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Header from '../components/Header';
 import ReactPlayer from 'react-player';
 
 export default function AreaAluno() {
@@ -9,13 +10,17 @@ export default function AreaAluno() {
     fetch('http://localhost:5050/api/videos', {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Erro de autenticação ou permissão');
+        return res.json();
+      })
       .then(setVideos)
-      .catch(() => alert('Erro ao buscar vídeos'));
+      .catch((err) => alert(err.message));
   }, []);
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <Header title="Área do Aluno" />
       <h1 className="text-2xl font-bold text-center">Área do Aluno</h1>
 
       {videos.length === 0 && (
@@ -27,7 +32,12 @@ export default function AreaAluno() {
           <div key={video.id} className="bg-white rounded shadow p-4 space-y-3">
             <h2 className="font-bold text-lg">{video.title}</h2>
             <p className="text-sm text-gray-600">{video.description}</p>
-            <ReactPlayer url={video.video_url} controls width="100%" />
+            <p className="text-xs text-gray-500">Professor: {video.professor_name}</p>
+            {video.video_url ? (
+              <ReactPlayer url={video.video_url} controls width="100%" />
+            ) : (
+              <p className="text-red-500 text-sm">Vídeo indisponível</p>
+            )}
           </div>
         ))}
       </div>

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { login } from '../api/auth';
 import { jwtDecode } from 'jwt-decode'; 
+import { Link } from 'react-router-dom';
+import LayoutPublico from '../components/LayoutPublico';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -26,13 +28,18 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <LayoutPublico>
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
         <h2 className="text-2xl font-bold text-center">Login</h2>
         <input className="w-full p-2 border rounded" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
         <input className="w-full p-2 border rounded" type="password" placeholder="Senha" value={password} onChange={e => setPassword(e.target.value)} />
         <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Entrar</button>
+      {/* Botão de cadastro */}
+      <p className="text-center text-sm">
+        Ainda não tem conta?{' '}
+        <Link to="/cadastro" className="text-blue-600 hover:underline">Cadastre-se</Link>
+      </p>
       </form>
-    </div>
+    </LayoutPublico>
   );
 }

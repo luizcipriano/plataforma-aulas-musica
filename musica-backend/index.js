@@ -15,10 +15,12 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 const protectedRoutes = require('./routes/protectedRoutes');
 const videoRoutes = require('./routes/videoRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/protected', protectedRoutes);
 app.use('/api/videos', videoRoutes);
+app.use('/api/videos/upload', uploadRoutes);
 
 // Iniciar servidor
 const PORT = process.env.PORT || 5050;
