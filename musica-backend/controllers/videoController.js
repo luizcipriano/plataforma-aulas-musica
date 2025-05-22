@@ -25,12 +25,26 @@ const getMyVideos = async (req, res) => {
     let result;
 
     if (role === 'professor') {
-      // Professores veem apenas seus vídeos (sem signed URL)
+      // Professores veem apenas seus vídeos (com signed URL)
       result = await pool.query(
         'SELECT * FROM videos WHERE owner_id = $1 ORDER BY created_at DESC',
         [userId]
       );
-      return res.json(result.rows);
+
+      const signedResults = await Promise.all(
+        result.rows.map(async (video) => {
+          const { data, error } = await supabase.storage
+            .from('videos')
+            .createSignedUrl(video.video_url, 60 * 60); // 1 hora
+
+          return {
+            ...video,
+            video_url: data?.signedUrl || null
+          };
+        })
+      );
+
+      return res.json(signedResults);
     }
 
     // Aluno: pega todos os vídeos com nome do professor

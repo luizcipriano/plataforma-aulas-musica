@@ -100,6 +100,22 @@ export default function PainelProfessor() {
           className="w-full p-2 border rounded"
         />
         {videoFile && <p className="text-sm text-gray-600">Arquivo: {videoFile.name}</p>}
+        {/* Video preview for selected file */}
+        {videoFile && (
+          <video
+            src={URL.createObjectURL(videoFile)}
+            controls
+            className="w-full max-h-64 my-2 border"
+          />
+        )}
+        {/* Video preview for existing video when editing and no new file selected */}
+        {!videoFile && form.video_url && (
+          <video
+            src={`https://YOUR_SUPABASE_PROJECT_ID.supabase.co/storage/v1/object/public/videos/${form.video_url}`}
+            controls
+            className="w-full max-h-64 my-2 border"
+          />
+        )}
         <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           {form.id ? 'Atualizar Vídeo' : 'Cadastrar Vídeo'}
         </button>
@@ -111,7 +127,14 @@ export default function PainelProfessor() {
             <div>
               <h2 className="font-bold">{video.title}</h2>
               <p className="text-sm">{video.description}</p>
-              <p className="text-xs text-gray-500">{video.video_url}</p>
+              {/* Show video preview for each video */}
+              {video.video_url && (
+                <video
+                  src={video.video_url}
+                  controls
+                  className="w-full max-h-64 my-2 border"
+                />
+              )}
             </div>
             <div className="flex gap-2">
               <button
