@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function PainelProfessor() {
   const [videos, setVideos] = useState([]);
   const [form, setForm] = useState({ id: null, title: '', description: '' });
@@ -13,7 +15,7 @@ export default function PainelProfessor() {
   }, []);
 
   async function fetchVideos() {
-    const res = await fetch('http://localhost:5050/api/videos', {
+    const res = await fetch(`${API_URL}/api/videos`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -29,7 +31,7 @@ export default function PainelProfessor() {
       const formData = new FormData();
       formData.append('video', videoFile);
 
-      const resUpload = await fetch('http://localhost:5050/api/videos/upload', {
+      const resUpload = await fetch(`${API_URL}/api/videos/upload`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
@@ -53,8 +55,8 @@ export default function PainelProfessor() {
 
     const method = form.id ? 'PUT' : 'POST';
     const url = form.id
-      ? `http://localhost:5050/api/videos/${form.id}`
-      : `http://localhost:5050/api/videos`;
+      ? `${API_URL}/api/videos/${form.id}`
+      : `${API_URL}/api/videos`;
 
     const res = await fetch(url, {
       method,
@@ -78,7 +80,7 @@ export default function PainelProfessor() {
     const confirm = window.confirm('Deseja realmente excluir este vídeo?');
     if (!confirm) return;
 
-    const res = await fetch(`http://localhost:5050/api/videos/${id}`, {
+    const res = await fetch(`${API_URL}/api/videos/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -100,7 +102,6 @@ export default function PainelProfessor() {
           className="w-full p-2 border rounded"
         />
         {videoFile && <p className="text-sm text-gray-600">Arquivo: {videoFile.name}</p>}
-        {/* Video preview for selected file */}
         {videoFile && (
           <video
             src={URL.createObjectURL(videoFile)}
@@ -108,10 +109,9 @@ export default function PainelProfessor() {
             className="w-full max-h-64 my-2 border"
           />
         )}
-        {/* Video preview for existing video when editing and no new file selected */}
         {!videoFile && form.video_url && (
           <video
-            src={`https://YOUR_SUPABASE_PROJECT_ID.supabase.co/storage/v1/object/public/videos/${form.video_url}`}
+            src={form.video_url}
             controls
             className="w-full max-h-64 my-2 border"
           />
@@ -127,7 +127,6 @@ export default function PainelProfessor() {
             <div>
               <h2 className="font-bold">{video.title}</h2>
               <p className="text-sm">{video.description}</p>
-              {/* Show video preview for each video */}
               {video.video_url && (
                 <video
                   src={video.video_url}

@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ReactPlayer from 'react-player';
 
+const API_URL = `${import.meta.env.VITE_API_URL}/api/videos`;
+
 export default function AreaAluno() {
   const [videos, setVideos] = useState([]);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch('http://localhost:5050/api/videos', {
+    fetch(API_URL, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
