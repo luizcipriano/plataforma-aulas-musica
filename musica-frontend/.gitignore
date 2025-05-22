@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# root .gitignore
+musica-backend/.env
+musica-frontend/.env
