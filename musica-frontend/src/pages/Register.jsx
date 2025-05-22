@@ -6,13 +6,17 @@ import LayoutPublico from '../components/LayoutPublico';
 export default function Register() {
   const [form, setForm] = useState({
     name: '',
-    email: '',  
+    email: '',
     password: '',
     role: 'professor'
   });
 
+  const [loading, setLoading] = useState(false);
+
   async function handleSubmit(e) {
     e.preventDefault();
+    setLoading(true);
+
     try {
       // Registrar
       await register(form.name, form.email, form.password, form.role);
@@ -28,27 +32,63 @@ export default function Register() {
       } else {
         window.location.href = '/aulas';
       }
-
     } catch (err) {
-      alert(err.message);
+      if (err.message.includes('Failed to fetch')) {
+        alert('Erro ao conectar com o servidor. Aguarde alguns segundos e tente novamente.');
+      } else {
+        alert(err.message || 'Erro inesperado. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <LayoutPublico>
-      <h2 className="text-2xl font-bold text-center">Cadastro</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input className="w-full p-2 border rounded" placeholder="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
-        <input className="w-full p-2 border rounded" type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-        <input className="w-full p-2 border rounded" type="password" placeholder="Senha" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
-        <select className="w-full p-2 border rounded" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
+      <h2 className="text-2xl font-bold text-center mb-4">Cadastro</h2>
+      <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto bg-white p-6 rounded shadow">
+        <input
+          className="w-full p-2 border rounded"
+          placeholder="Nome"
+          value={form.name}
+          onChange={e => setForm({ ...form, name: e.target.value })}
+          required
+        />
+        <input
+          className="w-full p-2 border rounded"
+          type="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={e => setForm({ ...form, email: e.target.value })}
+          required
+        />
+        <input
+          className="w-full p-2 border rounded"
+          type="password"
+          placeholder="Senha"
+          value={form.password}
+          onChange={e => setForm({ ...form, password: e.target.value })}
+          required
+        />
+        <select
+          className="w-full p-2 border rounded"
+          value={form.role}
+          onChange={e => setForm({ ...form, role: e.target.value })}
+        >
           <option value="professor">Professor</option>
           <option value="aluno">Aluno</option>
         </select>
-        <button className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700">Cadastrar</button>
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading ? 'Cadastrando...' : 'Cadastrar'}
+        </button>
       </form>
-      <p className="text-center text-sm">
-        Já tem conta? <a href="/login" className="text-blue-600 hover:underline">Fazer login</a>
+      <p className="text-center text-sm mt-4">
+        Já tem conta?{' '}
+        <a href="/login" className="text-blue-600 hover:underline">Fazer login</a>
       </p>
     </LayoutPublico>
   );

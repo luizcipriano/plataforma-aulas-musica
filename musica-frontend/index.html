@@ -8,6 +8,12 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Acorda o backend do Render assim que o site carrega
+      fetch("https://plataforma-aulas-musica.onrender.com/")
+        .then(() => console.log("Render acordado!"))
+        .catch(() => console.warn("Render ainda acordando..."));
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
