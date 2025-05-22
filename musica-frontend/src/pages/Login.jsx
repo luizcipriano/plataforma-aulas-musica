@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { login } from '../api/auth';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode'; 
 
 export default function Login() {
   const [email, setEmail] = useState('');
